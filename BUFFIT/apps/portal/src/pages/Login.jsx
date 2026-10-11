@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Login() {
@@ -13,10 +13,10 @@ export default function Login() {
     e.preventDefault();
     setError('');
     const res = await login(username, password);
-    if (res.success) {
+    if (res && res.user) {
       navigate('/');
     } else {
-      setError(res.message);
+      setError(res?.error || 'Error de autenticación');
     }
   };
 
@@ -49,6 +49,13 @@ export default function Login() {
             Ingresar
           </button>
         </form>
+
+        <p style={{ textAlign: 'center', marginTop: '15px', fontSize: '0.9rem' }}>
+          ¿No tienes una cuenta?{' '}
+          <Link to="/register" style={{ color: '#f16e58', fontWeight: 'bold' }}>
+            Regístrate aquí
+          </Link>
+        </p>
       </div>
     </div>
   );

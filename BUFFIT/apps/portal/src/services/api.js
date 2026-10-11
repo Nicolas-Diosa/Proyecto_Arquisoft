@@ -19,4 +19,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Petición pública de registro
+export const registerUser = async (userData) => {
+  const response = await api.post('/register', userData);
+  return response.data;
+};
+
+// Petición pública de login
+export const loginUser = async (credentials) => {
+  const response = await api.post('/login', credentials);
+  return response.data;
+};
+
 export default api;
