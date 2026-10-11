@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Único punto de contacto según el Diagrama C&C: Portal -> AuthService
 const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:5000';
 
 const api = axios.create({
@@ -10,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Interceptor para peticiones HTTP protegidas enviadas a través del AuthService
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -19,15 +17,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Petición pública de registro
 export const registerUser = async (userData) => {
   const response = await api.post('/register', userData);
   return response.data;
 };
 
-// Petición pública de login
 export const loginUser = async (credentials) => {
   const response = await api.post('/login', credentials);
+  return response.data;
+};
+
+// Petición para obtener las opciones del menú disponibles del día (desde el Inventario)
+export const getMenuOpciones = async () => {
+  const response = await api.get('/inventario/opciones');
   return response.data;
 };
 
