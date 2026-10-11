@@ -16,7 +16,7 @@ export default function Home() {
     sopas: [],
     postres: [],
     puntosRecogida: ['Comedor Central', 'Comedor Hemeroteca', 'Comedor Agronomía'],
-    rangosHorarios: ['11:30 AM - 12:00 PM', '12:00 PM - 12:30 PM', '12:30 PM - 01:00 PM', '01:00 PM - 01:30 PM']
+    rangosHorarios: ['11:30 AM - 11:45 AM ', '11:45 AM - 12:00 PM', '12:00 PM - 12:15 PM', '12:15 PM - 12:30 PM', '12:45 PM - 01:00 PM', '1:15 PM - 1:30 PM' ]
   });
 
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ export default function Home() {
           sopas: data.sopas || ['Sopa del Día (Verduras)', 'Crema de Pollo'],
           postres: data.postres || ['Flan de Leche', 'Fruta de Temporada'],
           puntosRecogida: data.puntosRecogida || ['Comedor Central', 'Comedor Hemeroteca', 'Comedor Agronomía'],
-          rangosHorarios: data.rangosHorarios || ['11:30 AM - 12:00 PM', '12:00 PM - 12:30 PM', '12:30 PM - 01:00 PM', '01:00 PM - 01:30 PM']
+          rangosHorarios: data.rangosHorarios || ['11:30 AM - 11:45 AM ', '11:45 AM - 12:00 PM', '12:00 PM - 12:15 PM', '12:15 PM - 12:30 PM', '12:45 PM - 01:00 PM', '1:15 PM - 1:30 PM' ]
         });
 
         // Configuración por defecto de logística
