@@ -1,0 +1,41 @@
+services:
+  db-usuarios:
+    image: postgres:15-alpine
+    container_name: bd_usuarios
+    environment:
+      POSTGRES_USER: user_buffit
+      POSTGRES_PASSWORD: password_buffit
+      POSTGRES_DB: bd_usuarios
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_users_data:/var/lib/postgresql/data
+
+  db-pedidos:
+    image: postgres:15-alpine
+    container_name: bd_pedidos
+    environment:
+      POSTGRES_USER: user_buffit
+      POSTGRES_PASSWORD: password_buffit
+      POSTGRES_DB: bd_pedidos
+    ports:
+      - "5433:5432"  # Se expone en el puerto local 5433 para evitar colisión de puertos
+    volumes:
+      - postgres_orders_data:/var/lib/postgresql/data
+
+  db-inventario:
+    image: mongo:6.0
+    container_name: bd_inventario
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_buffit
+      MONGO_INITDB_ROOT_PASSWORD: password_buffit
+      MONGO_INITDB_DATABASE: bd_inventario
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_inventory_data:/data/db
+
+volumes:
+  postgres_users_data:
+  postgres_orders_data:
+  mongo_inventory_data:
