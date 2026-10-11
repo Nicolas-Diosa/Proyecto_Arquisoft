@@ -1,0 +1,74 @@
+from flask import Blueprint, request, jsonify
+from app.database import db
+from app.models import Order, OrderItem
+
+orders_bp = Blueprint("orders", __name__)
+
+@orders_bp.route("/", methods=["POST"])
+def create_order():
+    """
+    Crea una nueva orden calculando el precio total y asociándola
+    al comedor y franja horaria seleccionados.
+    """
+    data = request.get_json() or {}
+
+    user_id = data.get("user_id")
+    dining_hall = data.get("dining_hall")
+    pickup_time_slot = data.get("pickup_time_slot")
+    items_data = data.get("items", [])
+
+    if not user_id or not dining_hall or not pickup_time_slot or not items_data:
+        return jsonify({
+            "error": "Datos incompletos. Se requieren user_id, dining_hall, pickup_time_slot e items."
+        }), 400
+
+    # Cálculo automático del precio total
+    total_price = sum(item.get("quantity", 1) * item.get("unit_price", 0.0) for item in items_data)
+
+    new_order = Order(
+        user_id=user_id,
+        dining_hall=dining_hall,
+        pickup_time_slot=pickup_time_slot,
+        total_price=total_price,
+        status="CONFIRMED"
+    )
+
+    db.session.add(new_order)
+    db.session.commit()
+
+    # Registro de items asociados al número de orden generado
+    for item in items_data:
+        order_item = OrderItem(
+            order_id=new_order.id,
+            product_name=item.get("product_name"),
+            category=item.get("category"),
+            quantity=item.get("quantity", 1),
+            unit_price=item.get("unit_price", 0.0)
+        )
+        db.session.add(order_item)
+
+    db.session.commit()
+    return jsonify(new_order.to_dict()), 201
+
+
+@orders_bp.route("/", methods=["GET"])
+def get_all_orders():
+    """Obtiene el historial de todas las órdenes."""
+    orders = Order.query.all()
+    return jsonify([order.to_dict() for order in orders]), 200
+
+
+@orders_bp.route("/user/<string:user_id>", methods=["GET"])
+def get_user_orders(user_id):
+    """Obtiene las órdenes correspondientes a un usuario específico."""
+    orders = Order.query.filter_by(user_id=user_id).all()
+    return jsonify([order.to_dict() for order in orders]), 200
+
+
+@orders_bp.route("/<int:order_id>", methods=["GET"])
+def get_order_by_id(order_id):
+    """Obtiene el detalle y confirmación de un pedido por su número de orden."""
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({"error": f"No se encontró el pedido con número de orden {order_id}"}), 404
+    return jsonify(order.to_dict()), 200
