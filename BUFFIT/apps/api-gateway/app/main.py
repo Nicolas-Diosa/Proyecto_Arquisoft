@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import menu, orders, inventory
+from app.routers import users, orders, inventory  # <-- Correcto mapeo C&C
 from app.config import settings
 
 app = FastAPI(
     title="BUFF/T API Gateway",
-    description="Gateway centralizador de peticiones para la plataforma BUFF/T",
+    description="Orquestador centralizador de peticiones para BUFF/T",
     version="1.0.0"
 )
 
@@ -17,9 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(menu.router)
-app.include_router(orders.router)
-app.include_router(inventory.router)
+# Conectores definidos en el diagrama C&C
+app.include_router(users.router)      # userPort -> Gestor de Usuarios
+app.include_router(orders.router)     # orderPort -> Gestor de Pedidos
+app.include_router(inventory.router)  # inventoryPort -> Gestor de Inventario
 
 @app.get("/health")
 def health_check():
