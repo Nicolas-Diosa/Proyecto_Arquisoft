@@ -17,7 +17,7 @@ export default function Navbar() {
       <div>
         {user ? (
           <>
-            <span>Hola, {user.name || user.username}</span>
+            <span>Hola, {user.user?.name}</span>
             <button className="btn" style={{ marginLeft: '15px' }} onClick={handleLogout}>
               Cerrar Sesión
             </button>

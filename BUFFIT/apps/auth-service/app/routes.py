@@ -21,7 +21,7 @@ def login():
     try:
         # Petición a través del API Gateway (orchestrationPort -> userPort)
         response = requests.post(
-            f"{Config.API_GATEWAY_URL}/users/verify-credentials",
+            f"{Config.API_GATEWAY_URL}/users/login",
             json={"email": email, "password": password},
             timeout=5.0
         )
@@ -36,8 +36,10 @@ def login():
             "email": email,
             "role": "Usuario"
         }
+    user_data = user_info.get("user", {})
+    user_id = user_data.get("id")
 
-    token = create_access_token(user_id=user_info["id"], role=user_info.get("role", "Usuario"))
+    token = create_access_token(user_id=user_id, role=user_data.get("role", "Usuario"))
 
     return jsonify({
         "message": "Inicio de sesión exitoso",
