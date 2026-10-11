@@ -3,12 +3,12 @@ import httpx
 from app.config import settings
 from app.auth import verify_jwt_token
 
-router = APIRouter(prefix="/menu", tags=["Menú y Platos"])
+router = APIRouter(prefix="/users", tags=["Gestor de Usuarios"])
 
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-async def proxy_menu(path: str, request: Request, user_payload: dict = Depends(verify_jwt_token)):
-    """Reenvía la petición recibida hacia el microservicio de Menú."""
-    target_url = f"{settings.MENU_SERVICE_URL}/{path}"
+async def proxy_users(path: str, request: Request, user_payload: dict = Depends(verify_jwt_token)):
+    """Reenvía la petición recibida hacia el microservicio Gestor de Usuarios."""
+    target_url = f"{settings.USERS_SERVICE_URL}/{path}"
     body = await request.body()
     headers = dict(request.headers)
     headers.pop("host", None)
