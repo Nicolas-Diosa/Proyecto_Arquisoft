@@ -3,11 +3,12 @@ import httpx
 from app.config import settings
 from app.auth import verify_jwt_token
 
-public_router = APIRouter(tags=["Rutas Públicas"])
+router_ord = APIRouter(prefix="/pedidos", tags=["Gestor de Pedidos"])
+router_inv = APIRouter(prefix="/inventario", tags=["Gestor de Inventario"])
 router = APIRouter(prefix="/users", tags=["Gestor de Usuarios"])
 
 # =====================================================================
-# 1. RUTAS PÚBLICAS (Sin token JWT)
+# 1. RUTAS PÚBLICAS GESTIÓN DE USUARIOS(Sin token JWT)
 # =====================================================================
 
 @router.post("/login")
@@ -59,7 +60,7 @@ async def register_proxy(request: Request):
     )
 
 # =====================================================================
-# 2. RUTAS PROTEGIDAS: Todo el resto bajo /users/{path}
+# 2. RUTAS PROTEGIDAS GESTIÓN DE USUARIOS: Todo el resto bajo /users/{path}
 #    Requiere token JWT y reenvía al Gestor de Usuarios
 # =====================================================================
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
@@ -70,6 +71,72 @@ async def proxy_users(
 ):
     """Reenvía peticiones protegidas al Gestor de Usuarios inyectando contexto (X-User-Id, X-User-Role)."""
     target_url = f"{settings.USERS_SERVICE_URL}/{path}"
+    body = await request.body()
+    headers = dict(request.headers)
+    headers.pop("host", None)
+
+    headers["X-User-Id"] = str(user_payload.get("sub", ""))
+    headers["X-User-Role"] = str(user_payload.get("role", "Usuario"))
+
+    async with httpx.AsyncClient() as client:
+        response = await client.request(
+            method=request.method,
+            url=target_url,
+            headers=headers,
+            params=request.query_params,
+            content=body,
+            timeout=10.0
+        )
+
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        headers=dict(response.headers)
+    )
+
+# =====================================================================
+# 2. RUTAS PROTEGIDAS PARA OTROS SERVICIOS
+# =====================================================================
+
+@router_inv.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_users(
+    path: str, 
+    request: Request, 
+    user_payload: dict = Depends(verify_jwt_token)
+):
+    """Reenvía peticiones protegidas al Gestor de Usuarios inyectando contexto (X-User-Id, X-User-Role)."""
+    target_url = f"{settings.INVENTORY_SERVICE_URL}/{path}"
+    body = await request.body()
+    headers = dict(request.headers)
+    headers.pop("host", None)
+
+    headers["X-User-Id"] = str(user_payload.get("sub", ""))
+    headers["X-User-Role"] = str(user_payload.get("role", "Usuario"))
+
+    async with httpx.AsyncClient() as client:
+        response = await client.request(
+            method=request.method,
+            url=target_url,
+            headers=headers,
+            params=request.query_params,
+            content=body,
+            timeout=10.0
+        )
+
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        headers=dict(response.headers)
+    )
+
+@router_ord.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_users(
+    path: str, 
+    request: Request, 
+    user_payload: dict = Depends(verify_jwt_token)
+):
+    """Reenvía peticiones protegidas al Gestor de Usuarios inyectando contexto (X-User-Id, X-User-Role)."""
+    target_url = f"{settings.ORDERS_SERVICE_URL}/{path}"
     body = await request.body()
     headers = dict(request.headers)
     headers.pop("host", None)
