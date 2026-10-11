@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prueba de login con Google - BUFF/T</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+  input, select { width: 100%; padding: .5rem; box-sizing: border-box; }
+  pre { background: #111; color: #9f9; padding: 1rem; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>Prueba de login con Google</h1>
+<p>Solo para desarrollo. Debe abrirse en <code>http://localhost:3000</code>
+   (ver <code>DEV.md</code>). Hace de "Portal" temporal.</p>
+
+<p><label>Client ID de Google<br><input id="cid" placeholder="xxxxxxxx.apps.googleusercontent.com"></label></p>
+<p><label>URL de AuthService<br><input id="auth" value="http://localhost:5000"></label></p>
+<button id="load">Mostrar botón de Google</button>
+
+<div id="btn" style="margin: 1rem 0"></div>
+
+<div id="register" hidden>
+  <p>Cuenta nueva. Elige tu categoría:</p>
+  <select id="category"></select>
+  <p><button id="doregister">Registrarme</button></p>
+</div>
+
+<h3>Respuesta de AuthService</h3>
+<pre id="out">(aún nada)</pre>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let regToken = null;
+
+  // Acumula las respuestas (la mas nueva arriba) para que una no tape a la anterior.
+  const show = (title, data) => {
+    const block = "[" + new Date().toLocaleTimeString() + "] " + title + "\n" + JSON.stringify(data, null, 2);
+    const prev = $("out").textContent.startsWith("(") ? "" : "\n\n----------------\n\n" + $("out").textContent;
+    $("out").textContent = (block + prev).slice(0, 20000);
+  };
+
+  async function post(path, body) {
+    const r = await fetch($("auth").value.replace(/\/$/, "") + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    let data = null;
+    try { data = await r.json(); } catch (e) {}
+    return { status: r.status, data };
+  }
+
+  async function onCredential(resp) {
+    // resp.credential es el id_token que firma Google
+    const { status, data } = await post("/auth/google", { id_token: resp.credential });
+    show("LOGIN GOOGLE -> HTTP " + status, data);
+    $("register").hidden = true;
+    if (data && data.needs_registration) {
+      $("doregister").disabled = false;
+      regToken = data.registration_token;
+      $("category").innerHTML = data.categories.map((c) => "<option>" + c + "</option>").join("");
+      $("register").hidden = false;
+    }
+  }
+
+  $("load").onclick = () => {
+    const cid = $("cid").value.trim();
+    if (!cid) return alert("Pega primero el Client ID");
+    google.accounts.id.initialize({ client_id: cid, callback: onCredential });
+    $("btn").innerHTML = "";
+    google.accounts.id.renderButton($("btn"), { theme: "outline", size: "large", text: "signin_with" });
+  };
+
+  $("doregister").onclick = async () => {
+    $("doregister").disabled = true; // evita el doble clic
+    const { status, data } = await post("/auth/register", {
+      registration_token: regToken,
+      category: $("category").value,
+    });
+    show("REGISTRO (" + $("category").value + ") -> HTTP " + status, data);
+    if (status === 201 || status === 409) $("register").hidden = true;
+    else $("doregister").disabled = false;
+  };
+</script>
+</body>
+</html>

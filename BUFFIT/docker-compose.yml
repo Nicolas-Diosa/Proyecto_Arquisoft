@@ -1,0 +1,65 @@
+# Bases de datos siempre; servicios propios con:  docker compose --profile services up --build
+# Los servicios de tus companeros se agregan aqui cuando existan (api-gateway, gestor-usuarios, gestor-pedidos, portal).
+services:
+  postgres-usuarios:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_USUARIOS}
+    ports: ["127.0.0.1:5433:5432"]
+    volumes: [pgdata-usuarios:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB_USUARIOS}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-pedidos:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_PEDIDOS}
+    ports: ["127.0.0.1:5434:5432"]
+    volumes: [pgdata-pedidos:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB_PEDIDOS}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mongo-inventario:
+    image: mongo:7
+    ports: ["127.0.0.1:27017:27017"]
+    volumes: [mongodata-inventario:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    profiles: ["services"]
+    build: ./apps/auth-service
+    env_file: .env
+    environment:
+      GATEWAY_URL: http://api-gateway:8000   # cuando exista el gateway
+    ports: ["5000:5000"]
+
+  gestor-inventario:
+    profiles: ["services"]
+    build:
+      context: .
+      dockerfile: apps/gestor-inventario/Dockerfile
+    env_file: .env
+    environment:
+      MONGO_URI: mongodb://mongo-inventario:27017
+    depends_on:
+      mongo-inventario: {condition: service_healthy}
+    ports: ["5003:5003", "50051:50051"]
+
+volumes:
+  pgdata-usuarios:
+  pgdata-pedidos:
+  mongodata-inventario:

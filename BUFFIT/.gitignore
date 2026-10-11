@@ -1,0 +1,14 @@
+# secretos y entornos
+.env
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# dependencias
+node_modules/
+# generado
+apps/gestor-inventario/app/generated/
+# sistema
+.DS_Store
+Thumbs.db
