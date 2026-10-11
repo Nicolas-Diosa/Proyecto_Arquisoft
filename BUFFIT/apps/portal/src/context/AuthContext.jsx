@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { authApi } from '../services/api';
+import api from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -9,29 +9,20 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (storedUser && token) {
+    if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
-    try {
-      // Petición HTTP al AuthService
-      const response = await authApi.post('/login', { username, password });
-      const { token, user: userData } = response.data;
+  const login = async (email, password) => {
+    const response = await api.post('/login', { email, password });
+    const { token, user: userData } = response.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Error al iniciar sesión',
-      };
-    }
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    return userData;
   };
 
   const logout = () => {
@@ -42,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
