@@ -8,7 +8,7 @@ router = APIRouter(prefix="/pedidos", tags=["Gestión de Pedidos"])
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_orders(path: str, request: Request, user_payload: dict = Depends(verify_jwt_token)):
     """Reenvía la petición recibida hacia el microservicio de Pedidos."""
-    target_url = f"{settings.ORDER_SERVICE_URL}/{path}"
+    target_url = f"{settings.ORDERS_SERVICE_URL}/pedidos/{path}"
     body = await request.body()
     headers = dict(request.headers)
     headers.pop("host", None)

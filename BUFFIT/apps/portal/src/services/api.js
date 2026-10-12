@@ -39,4 +39,14 @@ export const createOrder = async (orderData) => {
   return response.data;
 };
 
+// Obtener historial de pedidos del usuario autenticado
+export const getUserOrders = async (userId) => {
+  const response = await api.get(`/pedidos/user/${userId}`);
+  return response.data;
+};
+
+export const cancelOrder = async (orderId) => {
+  const response = await api.put(`/pedidos/${orderId}/cancel`);
+  return response.data;
+};
 export default api;

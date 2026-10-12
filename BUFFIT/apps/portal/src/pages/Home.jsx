@@ -4,11 +4,9 @@ import { AuthContext } from '../context/AuthContext';
 import { getMenuOpciones } from '../services/api';
 
 export default function Home() {
-  // 1. Extraer usuario autenticado del contexto
   const { user } = useContext(AuthContext);
-  const currentUser = user?.user || user; // Asegura compatibilidad según la estructura guardada
+  const currentUser = user?.user || user;
 
-  // 2. Estados para almacenar las opciones dinámicas del inventario
   const [menuData, setMenuData] = useState({
     proteinas: [],
     carbohidratos: [],
@@ -30,27 +28,23 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [errorMenu, setErrorMenu] = useState('');
 
-  // 3. Estados de selección de platillo
   const [proteina, setProteina] = useState('');
   const [carb1, setCarb1] = useState('');
   const [carb2, setCarb2] = useState('');
   const [ensalada, setEnsalada] = useState('');
   const [bebida, setBebida] = useState('');
 
-  // Opciones opcionales de Sopa y Postre
   const [quiereSopa, setQuiereSopa] = useState(false);
   const [sopa, setSopa] = useState('Sin sopa');
 
   const [quierePostre, setQuierePostre] = useState(false);
   const [postre, setPostre] = useState('Sin postre');
 
-  // Logística
-  const [punto, setPunto] = useState('');
-  const [horario, setHorario] = useState('');
+  const [punto, setPunto] = useState('Comedor Central');
+  const [horario, setHorario] = useState('11:30 AM - 11:45 AM');
 
   const navigate = useNavigate();
 
-  // 4. Cargar el menú del día desde el Gestor de Inventario
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -75,15 +69,11 @@ export default function Home() {
           ]
         });
 
-        // Selección por defecto de logística
         if (data.puntosRecogida?.length > 0) setPunto(data.puntosRecogida[0]);
-        else setPunto('Comedor Central');
-
         if (data.rangosHorarios?.length > 0) setHorario(data.rangosHorarios[0]);
-        else setHorario('11:30 AM - 11:45 AM');
 
       } catch (err) {
-        console.error("Error al cargar el menú desde el inventario:", err);
+        console.error("Error al cargar menú:", err);
         setErrorMenu('No se pudieron obtener las opciones de menú del día.');
       } finally {
         setLoading(false);
@@ -93,33 +83,81 @@ export default function Home() {
     fetchMenu();
   }, []);
 
-  // 5. Redireccionar al Resumen de Orden (Checkout)
   const handleIrAResumen = (e) => {
     e.preventDefault();
 
     if (!proteina || !carb1 || !carb2 || !ensalada || !bebida) {
-      alert('Por favor selecciona los componentes principales de tu plato.');
+      alert('Por favor selecciona todos los componentes del plato.');
       return;
     }
 
-    if (quiereSopa && (!sopa || sopa === 'Sin sopa')) {
-      alert('Por favor selecciona la sopa de tu preferencia.');
-      return;
+    // Asegurar user_id válido (string no vacío)
+    const activeUserId = String(currentUser?.id || currentUser?.user_id || currentUser?.email || "1");
+
+    const itemsData = [
+      { 
+        product_name: proteina, 
+        name: proteina, 
+        category: "PROTEINA", 
+        item_type: "PROTEINA", 
+        quantity: 1 
+      },
+      { 
+        product_name: carb1, 
+        name: carb1, 
+        category: "CARBOHIDRATO_1", 
+        item_type: "CARBOHIDRATO_1", 
+        quantity: 1 
+      },
+      { 
+        product_name: carb2, 
+        name: carb2, 
+        category: "CARBOHIDRATO_2", 
+        item_type: "CARBOHIDRATO_2", 
+        quantity: 1 
+      },
+      { 
+        product_name: ensalada, 
+        name: ensalada, 
+        category: "ENSALADA", 
+        item_type: "ENSALADA", 
+        quantity: 1 
+      },
+      { 
+        product_name: bebida, 
+        name: bebida, 
+        category: "BEBIDA", 
+        item_type: "BEBIDA", 
+        quantity: 1 
+      },
+    ];
+
+    if (quiereSopa && sopa !== 'Sin sopa') {
+      itemsData.push({ 
+        product_name: sopa, 
+        name: sopa, 
+        category: "SOPA", 
+        item_type: "SOPA", 
+        quantity: 1 
+      });
     }
 
-    if (quierePostre && (!postre || postre === 'Sin postre')) {
-      alert('Por favor selecciona el postre de tu preferencia.');
-      return;
+    if (quierePostre && postre !== 'Sin postre') {
+      itemsData.push({ 
+        product_name: postre, 
+        name: postre, 
+        category: "POSTRE", 
+        item_type: "POSTRE", 
+        quantity: 1 
+      });
     }
-
-    // Cálculo de precio según beneficio de usuario
-    const precioPlato = currentUser?.user_type === 'APOYO_ALIMENTARIO' ? 0 : 8500;
-
-    // Objeto borrador para transferir a OrderSummary
     const draftOrder = {
-      userId: currentUser?.id || currentUser?.email,
-      userType: currentUser?.user_type || 'ESTUDIANTE',
-      plato: {
+      user_id: activeUserId,
+      user_type: currentUser?.user_type || 'ESTUDIANTE',
+      dining_hall: punto || 'Comedor Central',
+      pickup_time_slot: horario || '11:30 AM - 11:45 AM',
+      items: itemsData,
+      platoVisual: {
         proteina,
         carb1,
         carb2,
@@ -128,9 +166,7 @@ export default function Home() {
         sopa: quiereSopa ? sopa : 'Sin sopa',
         postre: quierePostre ? postre : 'Sin postre'
       },
-      puntoRecogida: punto,
-      rangoHorario: horario,
-      precio: precioPlato
+      precio: currentUser?.user_type === 'APOYO_ALIMENTARIO' ? 0 : 8500
     };
 
     navigate('/resumen', { state: { draftOrder } });
@@ -154,7 +190,6 @@ export default function Home() {
       {errorMenu && <p style={{ color: 'red', fontWeight: 'bold' }}>{errorMenu}</p>}
 
       <form onSubmit={handleIrAResumen}>
-        {/* 1. Plato Principal */}
         <div className="card">
           <h3>1. Selección de Plato Principal</h3>
           <div className="grid">
@@ -200,7 +235,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 2. Opciones Adicionales */}
         <div className="card">
           <h3>2. Entradas y Acompañamientos Opcionales</h3>
           <div className="grid">
@@ -250,7 +284,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 3. Logística de Entrega */}
         <div className="card">
           <h3>3. Logística de Entrega</h3>
           <div className="grid">
