@@ -3,7 +3,7 @@ import httpx
 from app.config import settings
 from app.auth import verify_jwt_token
 
-router = APIRouter(prefix="/orders", tags=["Gestión de Pedidos"])
+router = APIRouter(prefix="/pedidos", tags=["Gestión de Pedidos"])
 
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_orders(path: str, request: Request, user_payload: dict = Depends(verify_jwt_token)):
