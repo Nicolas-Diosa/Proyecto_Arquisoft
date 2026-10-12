@@ -47,7 +47,7 @@ El orquestdor o API gateway de este proyecto es un elemento de orquestación y c
 
 * __AuthService:__
 
-El servicio de autenticación es un elemento catalogado como componente de cómputo pues aloja la lógica de negocio para iniciar sesión o redirigir a otro servicio para registrar nuevos usuarios en la plataforma, este servicio es quien divide los flujos según los roles establecidos (Usuario, Comedor o Administrador) y la intención de quien inicia sesión. Tecnología: Flask.
+El servicio de autenticación es un elemento catalogado como componente de cómputo pues aloja la lógica de negocio para iniciar sesión o redirigir a otro servicio para registrar nuevos usuarios en la plataforma y la intención de quien inicia sesión. Es decir, envía los flujos de peticiones al API GAteway y crea los tokens de inicio de sesión. Tecnología: Flask.
 
 * __Gestor de usuarios:__
 

@@ -17,7 +17,16 @@ export default function Navbar() {
       <div>
         {user ? (
           <>
-            <span>Hola, {user.user?.name}</span>
+            <Link to="/" style={{ marginRight: '15px', color: '#fff', textDecoration: 'none' }}>
+              Menú
+            </Link>
+            
+            <Link to="/mis-pedidos" style={{ marginRight: '15px', color: '#fff', textDecoration: 'none' }}>
+              Mis Pedidos
+            </Link>
+
+            <span>Hola, {user.user?.name || user?.name || user?.email}</span>
+            
             <button className="btn" style={{ marginLeft: '15px' }} onClick={handleLogout}>
               Cerrar Sesión
             </button>
