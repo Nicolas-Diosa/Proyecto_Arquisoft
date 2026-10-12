@@ -18,7 +18,7 @@ export default function Navbar() {
         {user ? (
           <>
             <Link to="/" style={{ marginRight: '15px', color: '#fff', textDecoration: 'none' }}>
-              Inicio / Menú
+              Menú
             </Link>
             
             <Link to="/mis-pedidos" style={{ marginRight: '15px', color: '#fff', textDecoration: 'none' }}>

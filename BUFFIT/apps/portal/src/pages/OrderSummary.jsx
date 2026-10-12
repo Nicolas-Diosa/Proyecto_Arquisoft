@@ -63,7 +63,7 @@ export default function OrderSummary() {
           <p><strong>Punto de Recogida:</strong> {completedOrder.dining_hall || draftOrder.dining_hall}</p>
           <p><strong>Horario:</strong> {completedOrder.pickup_time_slot || draftOrder.pickup_time_slot}</p>
 
-          <button className="btn" onClick={() => navigate('/')} style={{ marginTop: '20px' }}>
+          <button className="btn" onClick={() => navigate('/mis-pedidos')} style={{ marginTop: '20px' }}>
             Volver al Menú Principal
           </button>
         </div>
