@@ -56,8 +56,8 @@ def create_order():
     for item in items_data:
         order_item = OrderItem(
             order_id=new_order.id,
-            product_name=item.get("product_name"),
-            category=item.get("category"),
+            product_name=item.get("product_name") or item.get("name"),
+            category=item.get("category") or item.get("item_type"),
             quantity=item.get("quantity", 1)
         )
         db.session.add(order_item)
@@ -87,3 +87,31 @@ def get_order_by_id(order_id):
     if not order:
         return jsonify({"error": f"No se encontró el pedido #{order_id}"}), 404
     return jsonify(order.to_dict()), 200
+
+
+# ====================================================================
+# NUEVA RUTA: CANCELACIÓN DE PEDIDO
+# ====================================================================
+@orders_bp.route("/<int:order_id>/cancel", methods=["PUT", "POST"])
+def cancel_order(order_id):
+    """
+    Cancela un pedido existente cambiando su estado a 'CANCELLED'.
+    """
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({"error": f"No se encontró el pedido #{order_id}"}), 404
+
+    if order.status == "CANCELLED":
+        return jsonify({"message": f"El pedido #{order_id} ya se encuentra cancelado."}), 200
+
+    order.status = "CANCELLED"
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            "message": f"Pedido #{order_id} cancelado correctamente.",
+            "order": order.to_dict()
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error al cancelar la orden: {str(e)}"}), 500
