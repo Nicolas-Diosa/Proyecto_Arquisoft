@@ -14,7 +14,7 @@ export default function Login() {
     setError('');
     const res = await login(username, password);
     if (res && res.user) {
-      navigate('/');
+      navigate('/mis-pedidos');
     } else {
       setError(res?.error || 'Error de autenticación');
     }

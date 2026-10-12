@@ -16,8 +16,8 @@ def check_and_reserve_inventory(dining_hall: str, items_data: list) -> tuple[boo
             # Convierte la lista de ítems en mensajes de Protobuf
             items_payload = [
                 inventory_pb2.ItemQuantity(
-                    product_name=item.get("product_name"),
-                    category=item.get("category"),
+                    product_name=item.get("product_name") or item.get("name"),
+                    category=item.get("category") or item.get("item_type", ""),
                     quantity=item.get("quantity", 1)
                 ) for item in items_data
             ]

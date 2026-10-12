@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import OrderSummary from './pages/OrderSummary';
+import MyOrdersList from './components/MyOrdersList'; // <-- AGREGAR ESTA LÍNEA
 import './App.css';
 
 export default function App() {
@@ -32,6 +33,14 @@ export default function App() {
                 <OrderSummary />
               </ProtectedRoute>
             }
+          />
+          <Route 
+            path="/mis-pedidos" 
+            element={
+              <ProtectedRoute>
+                <MyOrdersList />
+              </ProtectedRoute>
+            } 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
