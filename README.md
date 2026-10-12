@@ -29,8 +29,7 @@ El estudiante entra a la aplicación web, inicia sesión y entra a la página de
 ## Architecture
 
 ### C&C
-![img](DiagramaBUFFIT.drawio-1.png)
-
+![img](C&C.drawio.png)
 ### Description of architectural styles used
 
 Este estilo arquitectónico es de tipo orientado a servicios, cada uno de los servicios engloba una funcionalidad específica y mantiene una responsabilidad aislada pero lo suficientemente grande.
@@ -103,7 +102,7 @@ Este conector define una comunicación síncrona en donde el componente emisor d
 
 * __Conector Gestor inventario - BD inventario:__
 
-Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de gestión de inventario y el receptor es la base de datos de inventario, la comunicación es de tipo GraphQL.
+Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de gestión de inventario y el receptor es la base de datos de inventario, la comunicación es de tipo pyMongo.
 
 * __Conector Gestor de pedidos - Gestor de Inventario:__
 
