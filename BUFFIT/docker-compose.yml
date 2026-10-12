@@ -31,7 +31,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password_buffit
       MONGO_INITDB_DATABASE: bd_inventario
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo_inventory_data:/data/db
 

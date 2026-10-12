@@ -5,7 +5,7 @@ from app.grpc_client import check_and_reserve_inventory  # Client gRPC
 
 orders_bp = Blueprint("orders", __name__)
 
-@orders_bp.route("/", methods=["POST"])
+@orders_bp.route("/crearOrden", methods=["POST"])
 def create_order():
     """
     Crea un nuevo pedido. Primero valida y descuenta inventario vía gRPC.

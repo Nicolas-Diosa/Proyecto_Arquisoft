@@ -3,7 +3,7 @@ import httpx
 from app.config import settings
 from app.auth import verify_jwt_token
 
-router = APIRouter(prefix="/inventory", tags=["Gestión de Inventario"])
+router = APIRouter(prefix="/inventario", tags=["Gestión de Inventario"])
 
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_inventory(path: str, request: Request, user_payload: dict = Depends(verify_jwt_token)):

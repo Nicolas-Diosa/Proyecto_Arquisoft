@@ -4,8 +4,9 @@ import { AuthContext } from '../context/AuthContext';
 import { getMenuOpciones } from '../services/api';
 
 export default function Home() {
-  // 1. Información del usuario autenticado desde AuthContext
+  // 1. Extraer usuario autenticado del contexto
   const { user } = useContext(AuthContext);
+  const currentUser = user?.user || user; // Asegura compatibilidad según la estructura guardada
 
   // 2. Estados para almacenar las opciones dinámicas del inventario
   const [menuData, setMenuData] = useState({
@@ -16,23 +17,30 @@ export default function Home() {
     sopas: [],
     postres: [],
     puntosRecogida: ['Comedor Central', 'Comedor Hemeroteca', 'Comedor Agronomía'],
-    rangosHorarios: ['11:30 AM - 11:45 AM ', '11:45 AM - 12:00 PM', '12:00 PM - 12:15 PM', '12:15 PM - 12:30 PM', '12:45 PM - 01:00 PM', '1:15 PM - 1:30 PM' ]
+    rangosHorarios: [
+      '11:30 AM - 11:45 AM',
+      '11:45 AM - 12:00 PM',
+      '12:00 PM - 12:15 PM',
+      '12:15 PM - 12:30 PM',
+      '12:45 PM - 01:00 PM',
+      '1:15 PM - 1:30 PM'
+    ]
   });
 
   const [loading, setLoading] = useState(true);
   const [errorMenu, setErrorMenu] = useState('');
 
-  // 3. Estados de la selección del usuario
+  // 3. Estados de selección de platillo
   const [proteina, setProteina] = useState('');
   const [carb1, setCarb1] = useState('');
   const [carb2, setCarb2] = useState('');
   const [ensalada, setEnsalada] = useState('');
   const [bebida, setBebida] = useState('');
-  
-  // Opciones de Sopa y Postre (Por defecto "Sin sopa" / "Sin postre")
+
+  // Opciones opcionales de Sopa y Postre
   const [quiereSopa, setQuiereSopa] = useState(false);
   const [sopa, setSopa] = useState('Sin sopa');
-  
+
   const [quierePostre, setQuierePostre] = useState(false);
   const [postre, setPostre] = useState('Sin postre');
 
@@ -42,13 +50,13 @@ export default function Home() {
 
   const navigate = useNavigate();
 
-  // 4. Carga de opciones desde el servicio de inventario
+  // 4. Cargar el menú del día desde el Gestor de Inventario
   useEffect(() => {
     const fetchMenu = async () => {
       try {
         setLoading(true);
         const data = await getMenuOpciones();
-        
+
         setMenuData({
           proteinas: data.proteinas || [],
           carbohidratos: data.carbohidratos || [],
@@ -57,15 +65,22 @@ export default function Home() {
           sopas: data.sopas || ['Sopa del Día (Verduras)', 'Crema de Pollo'],
           postres: data.postres || ['Flan de Leche', 'Fruta de Temporada'],
           puntosRecogida: data.puntosRecogida || ['Comedor Central', 'Comedor Hemeroteca', 'Comedor Agronomía'],
-          rangosHorarios: data.rangosHorarios || ['11:30 AM - 11:45 AM ', '11:45 AM - 12:00 PM', '12:00 PM - 12:15 PM', '12:15 PM - 12:30 PM', '12:45 PM - 01:00 PM', '1:15 PM - 1:30 PM' ]
+          rangosHorarios: data.rangosHorarios || [
+            '11:30 AM - 11:45 AM',
+            '11:45 AM - 12:00 PM',
+            '12:00 PM - 12:15 PM',
+            '12:15 PM - 12:30 PM',
+            '12:45 PM - 01:00 PM',
+            '1:15 PM - 1:30 PM'
+          ]
         });
 
-        // Configuración por defecto de logística
+        // Selección por defecto de logística
         if (data.puntosRecogida?.length > 0) setPunto(data.puntosRecogida[0]);
         else setPunto('Comedor Central');
 
         if (data.rangosHorarios?.length > 0) setHorario(data.rangosHorarios[0]);
-        else setHorario('11:30 AM - 12:00 PM');
+        else setHorario('11:30 AM - 11:45 AM');
 
       } catch (err) {
         console.error("Error al cargar el menú desde el inventario:", err);
@@ -78,8 +93,8 @@ export default function Home() {
     fetchMenu();
   }, []);
 
-  // 5. Creación de la Orden
-  const handleCrearOrden = (e) => {
+  // 5. Redireccionar al Resumen de Orden (Checkout)
+  const handleIrAResumen = (e) => {
     e.preventDefault();
 
     if (!proteina || !carb1 || !carb2 || !ensalada || !bebida) {
@@ -97,12 +112,13 @@ export default function Home() {
       return;
     }
 
-    const precioPlato = user?.user_type === 'APOYO_ALIMENTARIO' ? 0 : 8500;
+    // Cálculo de precio según beneficio de usuario
+    const precioPlato = currentUser?.user_type === 'APOYO_ALIMENTARIO' ? 0 : 8500;
 
-    const newOrder = {
-      orderId: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
-      userId: user?.id || user?.email,
-      userType: user?.user_type || 'ESTUDIANTE',
+    // Objeto borrador para transferir a OrderSummary
+    const draftOrder = {
+      userId: currentUser?.id || currentUser?.email,
+      userType: currentUser?.user_type || 'ESTUDIANTE',
       plato: {
         proteina,
         carb1,
@@ -114,11 +130,10 @@ export default function Home() {
       },
       puntoRecogida: punto,
       rangoHorario: horario,
-      precio: precioPlato,
-      fecha: new Date().toLocaleDateString()
+      precio: precioPlato
     };
 
-    navigate('/resumen', { state: { order: newOrder } });
+    navigate('/resumen', { state: { draftOrder } });
   };
 
   if (loading) {
@@ -132,15 +147,17 @@ export default function Home() {
   return (
     <div className="container">
       <h2>Arma tu Almuerzo BUFF/T</h2>
-      <p>Bienvenido, <strong>{user.user?.name || user?.email}</strong>. Selecciona las opciones ofertadas para hoy.</p>
+      <p>
+        Bienvenido, <strong>{currentUser?.name || currentUser?.email || 'Estudiante'}</strong>. Selecciona las opciones ofertadas para hoy.
+      </p>
 
       {errorMenu && <p style={{ color: 'red', fontWeight: 'bold' }}>{errorMenu}</p>}
 
-      <form onSubmit={handleCrearOrden}>
+      <form onSubmit={handleIrAResumen}>
+        {/* 1. Plato Principal */}
         <div className="card">
           <h3>1. Selección de Plato Principal</h3>
           <div className="grid">
-            
             <div className="form-group">
               <label>Proteína (1 porción)</label>
               <select value={proteina} onChange={(e) => setProteina(e.target.value)} required>
@@ -180,16 +197,13 @@ export default function Home() {
                 {menuData.bebidas.map((b, i) => <option key={i} value={b}>{b}</option>)}
               </select>
             </div>
-
           </div>
         </div>
 
-        {/* 2. Opciones adicionales (Sopa y Postre) */}
+        {/* 2. Opciones Adicionales */}
         <div className="card">
           <h3>2. Entradas y Acompañamientos Opcionales</h3>
           <div className="grid">
-            
-            {/* Sección Sopa */}
             <div className="form-group">
               <label style={{ display: 'block', marginBottom: '8px' }}>
                 <input
@@ -212,7 +226,6 @@ export default function Home() {
               )}
             </div>
 
-            {/* Sección Postre */}
             <div className="form-group">
               <label style={{ display: 'block', marginBottom: '8px' }}>
                 <input
@@ -234,7 +247,6 @@ export default function Home() {
                 </select>
               )}
             </div>
-
           </div>
         </div>
 
@@ -259,7 +271,7 @@ export default function Home() {
         </div>
 
         <button type="submit" className="btn" style={{ fontSize: '1.2rem', width: '100%' }}>
-          Confirmar y Crear Orden
+          Revisar Resumen y Confirmar Orden
         </button>
       </form>
     </div>

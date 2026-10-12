@@ -33,4 +33,10 @@ export const getMenuOpciones = async () => {
   return response.data;
 };
 
+// Petición para crear una nueva orden en el Gestor de Pedidos
+export const createOrder = async (orderData) => {
+  const response = await api.post('/pedidos/crearOrden', orderData);
+  return response.data;
+};
+
 export default api;
