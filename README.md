@@ -113,3 +113,9 @@ NOTA: Se utilizarán 4 contenedores de Docker, 3 para las BD y uno para los serv
 
 ## How to run
 
+Entrar desde la carpeta BUFFIT a una terminal de windows y ejecutar el comando
+
+
+ *docker compose up --build*
+
+ teniendo abierto el Docker Desktop.
