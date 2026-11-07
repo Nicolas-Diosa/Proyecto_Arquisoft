@@ -1,4 +1,3 @@
-# Levantar todo:  docker compose up --build
 services:
   # ------------------------------------------------------------ Bases de datos
   db-usuarios:
@@ -119,30 +118,16 @@ services:
       - gestor-inventario
     restart: on-failure
 
-  auth-service:
-    build: ./apps/auth-service
-    container_name: auth_service
-    environment:
-      PORT: "5000"
-      JWT_SECRET_KEY: clave_secreta_super_segura_buffit
-      JWT_ALGORITHM: HS256
-      API_GATEWAY_URL: http://api-gateway:8000
-    ports:
-      - "5000:5000"
-    depends_on:
-      - api-gateway
-    restart: on-failure
-
   portal:
     build: ./apps/portal
     container_name: portal
     environment:
-      # Lo usa el navegador (en tu PC), por eso es localhost y no el nombre del contenedor
-      VITE_AUTH_SERVICE_URL: http://localhost:5000
+      # Lo usa el navegador (localhost-no el nombre del contenedor)
+      VITE_API_GATEWAY_URL: http://localhost:8000
     ports:
       - "3000:3000"
     depends_on:
-      - auth-service
+      - api-gateway
 
 volumes:
   postgres_users_data:

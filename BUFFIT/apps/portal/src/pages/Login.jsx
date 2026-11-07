@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
@@ -12,7 +12,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const res = await login(username, password);
+    const res = await login(email, password);
     if (res && res.user) {
       navigate('/mis-pedidos');
     } else {
@@ -27,12 +27,12 @@ export default function Login() {
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Usuario / Correo UNAL</label>
+            <label>Correo Electrónico</label>
             <input
-              type="text"
+              type="email"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="usuario@unal.edu.co"
             />
           </div>

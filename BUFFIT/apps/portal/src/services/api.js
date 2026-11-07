@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:5000';
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8000';
 
 const api = axios.create({
-  baseURL: AUTH_SERVICE_URL,
+  baseURL: API_GATEWAY_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,12 +18,12 @@ api.interceptors.request.use((config) => {
 });
 
 export const registerUser = async (userData) => {
-  const response = await api.post('/register', userData);
+  const response = await api.post('/users/register', userData);
   return response.data;
 };
 
 export const loginUser = async (credentials) => {
-  const response = await api.post('/login', credentials);
+  const response = await api.post('/users/login', credentials);
   return response.data;
 };
 
