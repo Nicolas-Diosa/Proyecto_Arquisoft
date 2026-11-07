@@ -29,7 +29,7 @@ El estudiante entra a la aplicación web, inicia sesión y entra a la página de
 ## Architecture
 
 ### C&C
-![img](C&C.drawio.png)
+![img](C&C2.drawio.png)
 ### Description of architectural styles used
 
 Este estilo arquitectónico es de tipo orientado a servicios, cada uno de los servicios engloba una funcionalidad específica y mantiene una responsabilidad aislada pero lo suficientemente grande.
@@ -42,11 +42,7 @@ Este elemento es un componente de cómputo pues aloja el frontend en forma de p�
 
 * __API GATEWAY:__
 
-El orquestdor o API gateway de este proyecto es un elemento de orquestación y componente de cómputo, su principal función es redireccionar las peticiones del usuario una vez este se haya autenticado, en general todos los roles tienen que pasar en su flujo de uso de la aplicación por este componente. Tecnología: FastAPI.
-
-* __AuthService:__
-
-El servicio de autenticación es un elemento catalogado como componente de cómputo pues aloja la lógica de negocio para iniciar sesión o redirigir a otro servicio para registrar nuevos usuarios en la plataforma y la intención de quien inicia sesión. Es decir, envía los flujos de peticiones al API GAteway y crea los tokens de inicio de sesión. Tecnología: Flask.
+El orquestdor o API gateway de este proyecto es un elemento de orquestación y componente de cómputo, su principal función es redireccionar las peticiones del usuario una vez este se haya autenticado, gestionar los tokens de autenticación también y en general todos los roles tienen que pasar en su flujo de uso de la aplicación por este componente. Tecnología: FastAPI.
 
 * __Gestor de usuarios:__
 
@@ -60,6 +56,14 @@ El gestor de pedidos es un elemento de tipo componente de cómputo, aloja la ló
 
 El gestor de inventario es un elemento de tipo componente de cómputo, aloja la lógica de negocio para eliminar, consultar, modificar o añadir nuevo inventario, este es el elemento que primeramente hace peticiones a la base de datos de inventario. Tecnología: FastAPI.
 
+* __Gestor de estadísticas:__
+
+El gestor de estadísticas es un elemento de tipo componente de cómputo, aloja la lógica de negocio para consultar la información alojada en la BD de estadísticas y procesar aquella que llega a través de la cola de estadísticas. Tecnología: Flask.
+
+* __Cola de estadísticas:__
+
+La cola de estadísticas es un elemento de tipo componente de cómputo, se ocupa de almacenar temporalmente y suministrar los datos necesarios al gestor de estadísticas, con el objetivo de que no se interrumpa el flujo de pedidos por el proceso de negocio de generación de estadísticas. Tecnología: RabbitMQ.
+
 * __BD usuarios:__
 
 La base de datos de usuarios es un componente de almacenamiento, es relacional y se ocupa de guardar todos los registros de usuarios para poder completar los flujos a través del inicio de sesión. Tecnología: PostgreSQL.
@@ -71,6 +75,10 @@ La base de datos de pedidos es un componente de almacenamiento, es relacional y 
 * __BD inventario:__
 
 La base de datos de inventario es un componente de almacenamiento, es no relacional y se ocupa de guardar los registros del inventario disponible, se modifican los registros de cantidad cada vez que se hace un pedido de manera que se sabe la cantidad de inventario en tiempo real en cada comedor, esta base de datos es accedida siempre que se pone un pedido y en dado caso de que se cancele el pedido se vuelve a modificar. Tecnología: MongoDB.
+
+* __BD estadísticas:__
+
+La base de datos de estadísticas es un componente de almacenamiento, es relacional y se ocupa de guardar todos los registros de subsidios y características de los pedidos para poder cgenerar estadísticas de utilidad asociadas especialmente al rol de administración y trabajadores. Tecnología: PostgreSQL.
 
 * __Conector Portal - AuthService:__
 
@@ -99,6 +107,18 @@ Este conector define una comunicación síncrona en donde el componente emisor d
 * __Conector Gestor de Pedidos - BD pedidos:__
 
 Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de gestión de pedidos y el receptor es la base de datos de pedidos, la comunicación es de tipo Database Connection.
+
+* __Conector Gestor de Pedidos - Cola de estadísticas:__
+
+Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de gestión de estadísticas y el receptor es la base de datos de estadísticas, la comunicación es de tipo AMQP.
+
+* __Conector Cola de estadísticas - Gestor de estadísticas:__
+
+Este conector define una comunicación asíncrona en donde el componente emisor de peticiones es el servicio de gestión de estadísticas y el receptor es la base de datos de estadísticas, la comunicación es de tipo AMQP.
+
+* __Conector Gestor de estadísticas - BD estadísticas:__
+
+Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de gestión de estadísticas y el receptor es la base de datos de estadísticas, la comunicación es de tipo Database Connection.
 
 * __Conector Gestor inventario - BD inventario:__
 
