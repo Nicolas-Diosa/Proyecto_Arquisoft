@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { homeFor } from '../utils/user';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ export default function Login() {
     setError('');
     const res = await login(username, password);
     if (res && res.user) {
-      navigate('/mis-pedidos');
+      navigate(homeFor(res.user));
     } else {
       setError(res?.error || 'Error de autenticación');
     }

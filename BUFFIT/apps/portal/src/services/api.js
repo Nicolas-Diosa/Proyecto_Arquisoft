@@ -49,4 +49,43 @@ export const cancelOrder = async (orderId) => {
   const response = await api.put(`/pedidos/${orderId}/cancel`);
   return response.data;
 };
+
+// ---------------------------------------------------------------- Rol Comedor
+// Pedidos del comedor para hoy (o `fecha`), ordenados por franja de recogida
+export const getDiningHallOrders = async (diningHall, { status, fecha } = {}) => {
+  const response = await api.get('/pedidos/comedor', {
+    params: { dining_hall: diningHall, status, fecha },
+  });
+  return response.data;
+};
+
+export const deliverOrder = async (orderId, diningHall) => {
+  const response = await api.put(`/pedidos/${orderId}/deliver`, { dining_hall: diningHall });
+  return response.data;
+};
+
+export const getInventoryItems = async (diningHall) => {
+  const response = await api.get('/inventario/items', { params: { comedor: diningHall } });
+  return response.data;
+};
+
+export const createInventoryItem = async (item) => {
+  const response = await api.post('/inventario/items', item);
+  return response.data;
+};
+
+export const updateInventoryItem = async (itemId, changes) => {
+  const response = await api.put(`/inventario/items/${itemId}`, changes);
+  return response.data;
+};
+
+export const createLeftoverReport = async (diningHall) => {
+  const response = await api.post('/inventario/reportes/sobrantes', { dining_hall: diningHall });
+  return response.data;
+};
+
+export const getLeftoverReports = async (diningHall) => {
+  const response = await api.get('/inventario/reportes/sobrantes', { params: { comedor: diningHall } });
+  return response.data;
+};
 export default api;

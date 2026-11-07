@@ -9,6 +9,12 @@ PRICE_MAP = {
     "GENERAL": 12000.0         # Tarifa plena para otros usuarios / externos
 }
 
+STATUS_LABELS = {
+    "CONFIRMED": "Sin entregar",
+    "DELIVERED": "Entregada",
+    "CANCELLED": "Cancelada",
+}
+
 class Order(db.Model):
     __tablename__ = "orders"
 
@@ -32,6 +38,7 @@ class Order(db.Model):
             "pickup_time_slot": self.pickup_time_slot,
             "total_price": self.total_price,
             "status": self.status,
+            "status_label": STATUS_LABELS.get(self.status, self.status),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "items": [item.to_dict() for item in self.items]
         }
