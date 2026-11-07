@@ -6,6 +6,7 @@ from sqlalchemy import func
 from app.auth import login_required, is_staff
 from app.config import Config
 from app.database import db
+from app.events import publish_order_event
 from app.grpc_client import check_and_reserve_inventory  # Client gRPC
 from app.inventory_client import restock_inventory
 from app.models import Order, OrderItem, PRICE_MAP
@@ -54,7 +55,7 @@ def create_order():
             "detail": stock_message
         }), 400
 
-    # Determinar tarifa fija por el tipo de usuario (0.0, 3500.0 o 12000.0)
+    # Determinar tarifa fija por el tipo de usuario (0.0, 8400.0 o 16500.0)
     fixed_price = PRICE_MAP.get(user_type, PRICE_MAP["GENERAL"])
 
     # Creación y confirmación de la orden en BD Pedidos
@@ -81,6 +82,7 @@ def create_order():
         db.session.add(order_item)
 
     db.session.commit()
+    publish_order_event(new_order, "pedido.creado")
     return jsonify(new_order.to_dict()), 201
 
 
@@ -160,6 +162,7 @@ def deliver_order(order_id):
 
     order.status = "DELIVERED"
     db.session.commit()
+    publish_order_event(order, "pedido.entregado")
     return jsonify({"message": f"Pedido #{order_id} entregado.", "order": order.to_dict()}), 200
 
 
@@ -227,6 +230,7 @@ def cancel_order(order_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Error al cancelar la orden: {str(e)}"}), 500
+    publish_order_event(order, "pedido.cancelado")
     return jsonify({
         "message": f"Pedido #{order_id} cancelado correctamente.",
         "order": order.to_dict()

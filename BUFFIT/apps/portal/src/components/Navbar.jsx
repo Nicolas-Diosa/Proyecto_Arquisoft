@@ -9,6 +9,7 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const isComedor = getRole(user) === 'Comedor';
+  const canSeeStats = ['Comedor', 'Administrador'].includes(getRole(user));
 
   const handleLogout = () => {
     logout();
@@ -32,6 +33,8 @@ export default function Navbar() {
                 <Link to="/mis-pedidos" style={linkStyle}>Mis Pedidos</Link>
               </>
             )}
+
+            {canSeeStats && <Link to="/estadisticas" style={linkStyle}>Estadísticas</Link>}
 
             <span>Hola, {user.user?.name || user?.name || user?.email}</span>
 
