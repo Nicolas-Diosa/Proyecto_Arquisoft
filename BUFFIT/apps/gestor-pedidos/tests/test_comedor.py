@@ -10,6 +10,7 @@ import jwt
 import pytest
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["EVENTS_ENABLED"] = "false"  # sin broker en las pruebas
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app  # noqa: E402
