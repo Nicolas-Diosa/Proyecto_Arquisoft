@@ -50,7 +50,7 @@ docker compose up --build -d
 if errorlevel 1 (
     echo [ERROR] docker compose fallo. Revisa el mensaje de arriba.
     echo Si dice "port is already allocated", otro programa usa uno de estos puertos:
-    echo 3000, 5000, 8000, 8002, 8003, 8004, 50051, 5432, 5433, 27018
+    echo 3000, 8000, 8002, 8003, 8004, 8005, 50051, 5432, 5433, 5434, 5672, 15672, 27018
     goto :error
 )
 

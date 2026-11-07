@@ -7,3 +7,4 @@ psycopg[binary]
 psycopg2-binary
 PyJWT>=2.8.0
 requests>=2.31.0
+pika>=1.3.2

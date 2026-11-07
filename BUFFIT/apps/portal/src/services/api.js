@@ -88,4 +88,19 @@ export const getLeftoverReports = async (diningHall) => {
   const response = await api.get('/inventario/reportes/sobrantes', { params: { comedor: diningHall } });
   return response.data;
 };
+
+// ---------------------------------------------------------------- Estadisticas (Comedor / Administrador)
+const statsParams = ({ desde, hasta, comedor } = {}) => ({
+  desde: desde || undefined, hasta: hasta || undefined, comedor: comedor || undefined,
+});
+const getStats = async (path, filters) => {
+  const response = await api.get(`/estadisticas/${path}`, { params: statsParams(filters) });
+  return response.data;
+};
+export const getStatsSummary = (filters) => getStats('resumen', filters);
+export const getStatsByDiningHall = (filters) => getStats('por-comedor', filters);
+export const getStatsBySlot = (filters) => getStats('por-franja', filters);
+export const getStatsByUserType = (filters) => getStats('por-tipo-usuario', filters);
+export const getStatsDaily = (filters) => getStats('serie-diaria', filters);
+
 export default api;

@@ -10,11 +10,13 @@ import OrderSummary from './pages/OrderSummary';
 import MyOrdersList from './components/MyOrdersList';
 import DiningHallDashboard from './components/DiningHallDashboard';
 import ComedorInventory from './pages/ComedorInventory';
+import Estadisticas from './pages/Estadisticas';
 import './App.css';
 
 // El personal del comedor tiene su propio flujo (/comedor); no arma pedidos.
 const CONSUMER_ONLY = ['Comedor'];
 const COMEDOR_ROLES = ['Comedor'];
+const STATS_ROLES = ['Comedor', 'Administrador'];
 
 export default function App() {
   return (
@@ -61,6 +63,14 @@ export default function App() {
             element={
               <ProtectedRoute roles={COMEDOR_ROLES}>
                 <ComedorInventory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/estadisticas"
+            element={
+              <ProtectedRoute roles={STATS_ROLES}>
+                <Estadisticas />
               </ProtectedRoute>
             }
           />
