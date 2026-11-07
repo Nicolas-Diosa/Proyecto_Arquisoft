@@ -73,6 +73,9 @@ services:
       PORT: "8004"
       DATABASE_URL: postgresql+psycopg2://user_buffit:password_buffit@db-pedidos:5432/bd_pedidos
       INVENTORY_GRPC_TARGET: gestor-inventario:50051
+      INVENTORY_HTTP_URL: http://gestor-inventario:8003
+      JWT_SECRET_KEY: clave_secreta_super_segura_buffit
+      JWT_ALGORITHM: HS256
     ports:
       - "8004:8004"
     depends_on:
