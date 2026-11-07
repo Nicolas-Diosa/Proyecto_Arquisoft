@@ -13,10 +13,15 @@ export default function Login() {
     e.preventDefault();
     setError('');
     const res = await login(username, password);
-    if (res && res.user) {
-      navigate('/mis-pedidos');
-    } else {
+    if(res.error){
       setError(res?.error || 'Error de autenticación');
+      return;
+    }
+    if(res.user.user.role == "Administrador"){
+      navigate('/admin');
+    }
+    else if (res && res.user) {
+      navigate('/mis-pedidos');
     }
   };
 

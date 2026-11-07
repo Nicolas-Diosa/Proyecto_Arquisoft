@@ -49,4 +49,11 @@ export const cancelOrder = async (orderId) => {
   const response = await api.put(`/pedidos/${orderId}/cancel`);
   return response.data;
 };
+
+// Obtener lista de usuarios
+export const getAllUsers = async () => {
+  const response = await api.get(`/users/get`);
+  return response.data;
+};
+
 export default api;

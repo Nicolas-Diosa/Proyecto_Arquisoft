@@ -81,7 +81,7 @@ def get_user_by_id(user_id):
     return jsonify(user.to_dict()), 200
 
 
-@users_bp.route("/", methods=["GET"])
+@users_bp.route("/get", methods=["GET"])
 def get_all_users():
     """Listado completo (Requiere rol Administrador)."""
     _, requester_role = get_gateway_headers()
