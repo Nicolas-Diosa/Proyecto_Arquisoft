@@ -90,11 +90,8 @@ async def proxy_users(
     request: Request, 
     user_payload: dict = Depends(verify_jwt_token)
 ):
-<<<<<<< HEAD
     """Reenvía peticiones protegidas al Gestor de Usuarios inyectando contexto (X-User-Id, X-User-Role)."""
-=======
     """Reenvía peticiones protegidas inyectando X-User-Id y X-User-Role."""
->>>>>>> origin/main
     target_url = f"{settings.USERS_SERVICE_URL}/users/{path}"
     body = await request.body()
     headers = dict(request.headers)
