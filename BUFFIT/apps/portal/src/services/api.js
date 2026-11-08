@@ -23,6 +23,11 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    const url = originalRequest.url || '';
+
+    if (url.includes('/users/login') || url.includes('/users/register')) {
+       return Promise.reject(error);
+    }
 
     // Refresh Token
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
@@ -44,9 +49,9 @@ api.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         
         if (refreshError.response && refreshError.response.status === 403) {
-            window.location.href = '/login?bloqueado=true';
+            window.location.href = '/login';
         } else {
-            window.location.href = '/login?expired=true';
+            window.location.href = '/login';
         }
         return Promise.reject(refreshError);
       }

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { getAllUsers, toggleUser, deleteUser } from '../services/api'; 
+import { AuthContext } from '../context/AuthContext';
 
 export default function AdminHome() {
   // acciones en los usuarios
@@ -9,6 +10,7 @@ export default function AdminHome() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorModal, setErrorModal] = useState('');
   const [succesModal, setSuccesModal] = useState('');
+  const { user, logout } = useContext(AuthContext);
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -54,10 +56,10 @@ export default function AdminHome() {
     setIsSubmitting(true);
     console.log("Eliminando usuario:", userToDelete.id);
     try {
-    const data = await deleteUser(userToDelete.id);
-    setUsers(prevUsers => prevUsers.filter(u => 
-      u.id !== userToDelete.id
-    ));
+      const data = await deleteUser(userToDelete.id);
+      setUsers(prevUsers => prevUsers.filter(u => 
+        u.id !== userToDelete.id
+      ));
     setSuccesModal('Usuario eliminado');
     } catch (err) {
       setErrorModal(err.response?.data?.error || 'Error al eliminar al usuario');
@@ -89,19 +91,23 @@ export default function AdminHome() {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter(u => {
+    if (u.id==user?.id) return false;
     const fisrtFilter = Object.entries(filters).every(([key, term]) => {
-    if (!term) return true; 
-    // Obtenemos el valor del usuario para esa llave específica
-    const valueToSearch = String(user[key] || '').toLowerCase();
-    return valueToSearch.includes(term.toLowerCase());
+      if (!term) return true; 
+      const valueToSearch = String(u[key] || '').toLowerCase();
+      return valueToSearch.includes(term.toLowerCase());
     });
 
     if(!fisrtFilter) return false;
 
     if (searchTerm){
-      const valueToSearch = String(user[searchCriteria] || '').toLowerCase();
-      return valueToSearch.includes(searchTerm.toLowerCase());
+      const term = searchTerm.toLowerCase();
+      const valueToSearch = searchCriteria.some(criteria =>{
+        const value=String(user[criteria] || '').toLowerCase();
+        return value.includes(term);
+      }); 
+      if (!valueToSearch) return false;
     } return true;
     
 
@@ -215,6 +221,7 @@ export default function AdminHome() {
                   <p><strong>Rol:</strong> {user.role}</p>
                   <p><strong>Tipo de Usuario:</strong> {user.user_type}</p>
                   <p><strong>Estado:</strong> {user.is_active ? '✅ Activo' : '❌ Inactivo'}</p>
+                  {user.is_active? '': <p><strong>Razon del bloqueo:</strong> {String(user.notes_state)}</p>}
                   <p><strong>Fecha de creación:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
                 </div>
 

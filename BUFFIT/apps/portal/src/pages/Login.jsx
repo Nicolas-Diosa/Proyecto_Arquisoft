@@ -4,11 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 import { getRole, homeFor } from '../utils/user';
 
 export default function Login() {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  
-const [isExpired, setShowExpired] = useState(queryParams.get("expired") === "true");
-  const [isBlocked, setShowBlocked] = useState(queryParams.get("bloqueado") === "true");
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,18 +26,7 @@ const [isExpired, setShowExpired] = useState(queryParams.get("expired") === "tru
   return (
     
     <div className="container" style={{ maxWidth: '400px', marginTop: '80px' }}>
-{/* ALERTAS DE BLOQUEO Y ERROR*/}
-      {isExpired && (
-        <div className="alert alert-warning">
-          Tu sesión ha expirado por seguridad. Ingresa de nuevo.
-        </div>
-      )}
 
-      {isBlocked && (
-        <div className="alert alert-danger">
-          Acceso denegado: Tu cuenta ha sido inhabilitada.
-        </div>
-      )}
       <div className="card">
         <h2 style={{ textAlign: 'center', color: '#14253f' }}>Iniciar Sesión</h2>
         {error && <p style={{ color: 'red' }}>{error}</p>}

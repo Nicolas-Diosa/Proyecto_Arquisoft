@@ -31,5 +31,6 @@ class User(db.Model):
             "role": self.role,
             "user_type": self.user_type,
             "is_active": self.is_active,
+            "notes_state": self.notes_state,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
