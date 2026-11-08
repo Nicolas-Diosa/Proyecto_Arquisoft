@@ -1,23 +1,25 @@
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, Request, Response, HTTPException, status
 import httpx
 from app.config import settings
-from app.auth import verify_jwt_token
-
+from app.auth import verify_jwt_token, create_access_token
 
 router = APIRouter(prefix="/users", tags=["Gestor de Usuarios"])
 
 # =====================================================================
-# 1. RUTAS PÚBLICAS GESTIÓN DE USUARIOS(Sin token JWT)
+# 1. RUTAS PÚBLICAS DE AUTENTICACIÓN Y REGISTRO
 # =====================================================================
 
 @router.post("/login")
-async def login_proxy(request: Request):
-    """Punto de entrada público para inicio de sesión."""
-    target_url = f"{settings.USERS_SERVICE_URL}/users/login"
+async def login(request: Request):
+    """
+    Verifica credenciales en Gestor de Usuarios y emite el JWT directamente.
+    """
     body = await request.body()
     headers = dict(request.headers)
     headers.pop("host", None)
 
+    target_url = f"{settings.USERS_SERVICE_URL}/users/login"
+    
     async with httpx.AsyncClient() as client:
         response = await client.post(
             target_url,
@@ -26,23 +28,43 @@ async def login_proxy(request: Request):
             timeout=10.0
         )
 
-    return Response(
-        content=response.content,
-        status_code=response.status_code,
-        headers=dict(response.headers)
-    )
+    if response.status_code != 200:
+        return Response(
+            content=response.content,
+            status_code=response.status_code,
+            headers=dict(response.headers)
+        )
+
+    user_info = response.json()
+    user_data = user_info.get("user", user_info)
+    user_id = user_data.get("id") or user_data.get("_id")
+    role = user_data.get("role", "Usuario")
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="La respuesta del Gestor de Usuarios no contiene ID"
+        )
+
+    token = create_access_token(user_id=str(user_id), role=role)
+
+    return {
+        "message": "Inicio de sesión exitoso",
+        "token": token,
+        "user": user_data
+    }
 
 
 @router.post("/register")
-async def register_proxy(request: Request):
+async def register(request: Request):
     """
-    Punto de entrada público para registro/creación de usuarios.
-    Reenvía los datos sin exigir cabeceras de autorización previo.
+    Redirige la solicitud de registro al Gestor de Usuarios.
     """
-    target_url = f"{settings.USERS_SERVICE_URL}/users/register"  # O settings.USERS_SERVICE_URL/users si el registro vive en el gestor
     body = await request.body()
     headers = dict(request.headers)
     headers.pop("host", None)
+
+    target_url = f"{settings.USERS_SERVICE_URL}/users/register"
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -59,16 +81,20 @@ async def register_proxy(request: Request):
     )
 
 # =====================================================================
-# 2. RUTAS PROTEGIDAS GESTIÓN DE USUARIOS: Todo el resto bajo /users/{path}
-#    Requiere token JWT y reenvía al Gestor de Usuarios
+# 2. RUTAS PROTEGIDAS
 # =====================================================================
+
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_users(
     path: str, 
     request: Request, 
     user_payload: dict = Depends(verify_jwt_token)
 ):
+<<<<<<< HEAD
     """Reenvía peticiones protegidas al Gestor de Usuarios inyectando contexto (X-User-Id, X-User-Role)."""
+=======
+    """Reenvía peticiones protegidas inyectando X-User-Id y X-User-Role."""
+>>>>>>> origin/main
     target_url = f"{settings.USERS_SERVICE_URL}/users/{path}"
     body = await request.body()
     headers = dict(request.headers)

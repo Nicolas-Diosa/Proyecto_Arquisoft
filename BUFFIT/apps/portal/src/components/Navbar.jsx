@@ -1,10 +1,15 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { getRole } from '../utils/user';
+
+const linkStyle = { marginRight: '15px', color: '#fff', textDecoration: 'none' };
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const isComedor = getRole(user) === 'Comedor';
+  const canSeeStats = ['Comedor', 'Administrador'].includes(getRole(user));
 
   const handleLogout = () => {
     logout();
@@ -17,16 +22,22 @@ export default function Navbar() {
       <div>
         {user ? (
           <>
-            <Link to="/" style={{ marginRight: '15px', color: '#fff', textDecoration: 'none' }}>
-              Menú
-            </Link>
-            
-            <Link to="/mis-pedidos" style={{ marginRight: '15px', color: '#fff', textDecoration: 'none' }}>
-              Mis Pedidos
-            </Link>
+            {isComedor ? (
+              <>
+                <Link to="/comedor" style={linkStyle}>Entregas</Link>
+                <Link to="/comedor/inventario" style={linkStyle}>Inventario</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/" style={linkStyle}>Menú</Link>
+                <Link to="/mis-pedidos" style={linkStyle}>Mis Pedidos</Link>
+              </>
+            )}
+
+            {canSeeStats && <Link to="/estadisticas" style={linkStyle}>Estadísticas</Link>}
 
             <span>Hola, {user.user?.name || user?.name || user?.email}</span>
-            
+
             <button className="btn" style={{ marginLeft: '15px' }} onClick={handleLogout}>
               Cerrar Sesión
             </button>
