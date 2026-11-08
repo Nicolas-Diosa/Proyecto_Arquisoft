@@ -50,9 +50,22 @@ export const cancelOrder = async (orderId) => {
   return response.data;
 };
 
-// Obtener lista de usuarios
+//--------------------------------Peticiones a Users--------------------------------- 
+//Obtener lista de usuarios
 export const getAllUsers = async () => {
   const response = await api.get(`/users/get`);
+  return response.data;
+};
+
+//Inhabilitar un usuario
+export const toggleUser = async (userId,action, reason=null) => {
+  const response = await api.patch(`/users/toggle/${userId}/${action}`,{reason:reason});
+  return response.data;
+};
+
+//Eliminar un usuario
+export const deleteUser = async (userId) => {
+  const response = await api.delete(`/users/delete/${userId}`);
   return response.data;
 };
 

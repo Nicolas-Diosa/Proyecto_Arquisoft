@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { homeFor } from '../utils/user';
+import { getRole, homeFor } from '../utils/user';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -9,22 +9,16 @@ export default function Login() {
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     const res = await login(email, password);
+    const role = getRole(res);
     if (res && res.user) {
       navigate(homeFor(res.user));
     } else {
       setError(res?.error || 'Error de autenticación');
       return;
-    }
-    if(res.user.user.role == "Administrador"){
-      navigate('/admin');
-    }
-    else if (res && res.user) {
-      navigate('/mis-pedidos');
     }
   };
 

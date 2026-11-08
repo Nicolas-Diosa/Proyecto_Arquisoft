@@ -84,7 +84,7 @@ async def register(request: Request):
 # 2. RUTAS PROTEGIDAS
 # =====================================================================
 
-@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def proxy_users(
     path: str, 
     request: Request, 
