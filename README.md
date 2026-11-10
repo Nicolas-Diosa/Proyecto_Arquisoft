@@ -148,15 +148,9 @@ Este conector define una comunicación síncrona en donde el componente emisor d
 
 Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de gestión de pedidos y el receptor es el servicio de gestión de inventario, la comunicación es de tipo gRPC.
 
-NOTA: Se utilizarán 9 contenedores de Docker, 3 para las BD y 6 para los servicios y orquestador.
+NOTA: Cada uno de los componentes estará en su propio contenedor.
 
 
 ## How to run
 
-Entrar desde la carpeta BUFFIT a una terminal de windows y ejecutar el comando
-
- *docker compose up --build*
-
- teniendo abierto el Docker Desktop.
- 
- Luego entrar en la dirección http://localhost:3000.
+Ejecutar el archivo iniciar.
