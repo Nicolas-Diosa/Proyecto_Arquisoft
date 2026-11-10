@@ -19,9 +19,10 @@ export const AuthProvider = ({ children }) => {
     try {
       // Usar la función centralizada de api.js
       const data = await loginUser({ email, password });
-      const { token, user: userData } = data;
+      const { token, refresh, user: userData } = data;
 
       localStorage.setItem('token', token);
+      localStorage.setItem('refreshToken', refresh);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
 
@@ -34,6 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
   };

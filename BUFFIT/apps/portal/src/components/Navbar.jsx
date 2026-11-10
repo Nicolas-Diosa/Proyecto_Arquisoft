@@ -9,6 +9,8 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const isComedor = getRole(user) === 'Comedor';
+  const isUsuario = getRole(user) === 'Usuario';
+  const isAdmin = getRole(user) === 'Administrador';
   const canSeeStats = ['Comedor', 'Administrador'].includes(getRole(user));
 
   const handleLogout = () => {
@@ -27,12 +29,19 @@ export default function Navbar() {
                 <Link to="/comedor" style={linkStyle}>Entregas</Link>
                 <Link to="/comedor/inventario" style={linkStyle}>Inventario</Link>
               </>
-            ) : (
+            ) :('')}
+            {isUsuario ? (
               <>
                 <Link to="/" style={linkStyle}>Menú</Link>
                 <Link to="/mis-pedidos" style={linkStyle}>Mis Pedidos</Link>
               </>
-            )}
+            ):('')}
+
+            {isAdmin ? (
+              <>
+                <Link to="/admin" style={linkStyle}>Gestion de Usuarios</Link>
+              </>
+            ):('')}
 
             {canSeeStats && <Link to="/estadisticas" style={linkStyle}>Estadísticas</Link>}
 

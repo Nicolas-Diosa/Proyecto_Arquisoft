@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import HomeAdmin from './pages/HomeAdmin';
 import OrderSummary from './pages/OrderSummary';
 import MyOrdersList from './components/MyOrdersList';
 import DiningHallDashboard from './components/DiningHallDashboard';
@@ -17,6 +18,7 @@ import './App.css';
 const CONSUMER_ONLY = ['Comedor'];
 const COMEDOR_ROLES = ['Comedor'];
 const STATS_ROLES = ['Comedor', 'Administrador'];
+const ADMIN_ROLES = ['Administrador'];
 
 export default function App() {
   return (
@@ -31,6 +33,14 @@ export default function App() {
             element={
               <ProtectedRoute excludeRoles={CONSUMER_ONLY}>
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={ADMIN_ROLES}>
+                <HomeAdmin />
               </ProtectedRoute>
             }
           />

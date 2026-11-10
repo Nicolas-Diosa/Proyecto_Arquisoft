@@ -6,10 +6,9 @@ import { getRole, homeFor } from '../utils/user';
 /**
  * roles:        si se indica, solo esos roles pueden entrar.
  * excludeRoles: esos roles no pueden entrar (se les redirige a su página de inicio).
- */
+ **/
 export default function ProtectedRoute({ children, roles, excludeRoles }) {
   const { user, loading } = useContext(AuthContext);
-
   if (loading) return <div>Cargando...</div>;
   if (!user) return <Navigate to="/login" replace />;
 

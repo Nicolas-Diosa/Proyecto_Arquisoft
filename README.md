@@ -30,6 +30,30 @@ El estudiante entra a la aplicación web, inicia sesión y entra a la página de
 
 ### C&C
 ![img](C&C2.drawio.png)
+
+### Deployment Structure 
+![img](Deployment_Structure.png)
+
+Debido a la ausencia de datos reales sobre la futura carga transacciónal de la aplicación, hay información critica faltante para un entorno de producción, entre las cuales estan:
+
+* __Tasa de peticiones:__ 
+
+No se conoce el volumen de usuarios concurrentes en horas pico como la hora de almuerzo en la UNAL, lo que impide definir exactamente si se requieren réplicas múltiples para el API Gateway o el Gestor de Pedidos.
+
+* __Volumen de almacenamiento:__ 
+
+Falta definir la cuota en GB requerida para los volúmenes de las bases de datos.
+
+* __Limites de CPU y Cache:__ 
+
+Falta realizar pruebas de estrés para ajustar los recursos de Docker.
+
+### Layered Structure 
+![img](Layered_Structure.png)
+
+### Decomposition Structure 
+![img](Decomposition_Structure.png)
+
 ### Description of architectural styles used
 
 Este estilo arquitectónico es de tipo orientado a servicios, cada uno de los servicios engloba una funcionalidad específica y mantiene una responsabilidad aislada pero lo suficientemente grande.
@@ -80,25 +104,21 @@ La base de datos de inventario es un componente de almacenamiento, es no relacio
 
 La base de datos de estadísticas es un componente de almacenamiento, es relacional y se ocupa de guardar todos los registros de subsidios y características de los pedidos para poder cgenerar estadísticas de utilidad asociadas especialmente al rol de administración y trabajadores. Tecnología: PostgreSQL.
 
-* __Conector Portal - AuthService:__
+* __Conector Portal - API gateway:__
 
-Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el portal y el receptor es el servicio de autenticación, la comunicación es de tipo http.
-
-* __Conector AuthService - API gateway:__
-
-Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de autenticación el receptor es el orquestador o API gateway, esta comunicación es necesaria puesto que todo usuario que quiera acceder a los servicios de gestión tiene que encontrarse autenticado para evitar vulnerabilidades, la comunicación es de tipo http.
+Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el portal y el receptor es el orquestador o API gateway, con la logica de autenticación interna, esta comunicación es necesaria puesto que todo usuario que quiera acceder a los servicios de gestión tiene que encontrarse autenticado para evitar vulnerabilidades, la comunicación es de tipo http.
 
 * __Conector API gateway - Gestor de Usuarios:__
 
 Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el orquestador o API gateway y el receptor es el servicio de gestión de usuarios, la comunicación es de tipo http.
 
-* __Conector AuthService - Gestor de Pedidos:__
+* __Conector API gateway - Gestor de Pedidos:__
 
-Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de autenticación y el receptor es el servicio de gestión de pedidos, la comunicación es de tipo http.
+Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de orquestación y el receptor es el servicio de gestión de pedidos, la comunicación es de tipo http.
 
-* __Conector AuthService - Gestor de Inventario:__
+* __Conector API gateway - Gestor de Inventario:__
 
-Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de autenticación y el receptor es el servicio de gestión de inventario, la comunicación es de tipo http.
+Este conector define una comunicación síncrona en donde el componente emisor de peticiones es el servicio de orquestación y el receptor es el servicio de gestión de inventario, la comunicación es de tipo http.
 
 * __Conector Gestor de Usuarios - BD usuarios:__
 
