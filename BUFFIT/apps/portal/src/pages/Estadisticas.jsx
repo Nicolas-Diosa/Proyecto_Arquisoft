@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  getStatsSummary, getStatsByDiningHall, getStatsBySlot, getStatsByUserType, getStatsDaily,
+  getMenuOpciones, getStatsSummary, getStatsByDiningHall, getStatsBySlot, getStatsByUserType, getStatsDaily,
 } from '../services/api';
 
 const cop = (n) => new Intl.NumberFormat('es-CO', {
@@ -73,6 +73,7 @@ function DailyChart({ rows }) {
 
 export default function Estadisticas() {
   const [filters, setFilters] = useState({ desde: '', hasta: '', comedor: '' });
+  const [officialHalls, setOfficialHalls] = useState([]);
   const [halls, setHalls] = useState([]);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -102,6 +103,14 @@ export default function Estadisticas() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Opciones del filtro: los comedores oficiales (los mismos que ve el estudiante al pedir),
+  // aunque todavia no tengan pedidos. Si el menu no responde, quedan los que ya tienen datos.
+  useEffect(() => {
+    getMenuOpciones()
+      .then((menu) => setOfficialHalls(menu.puntosRecogida || []))
+      .catch(() => {});
+  }, []);
+
   const set = (key) => (e) => setFilters({ ...filters, [key]: e.target.value });
   const s = data?.summary;
 
@@ -128,7 +137,7 @@ export default function Estadisticas() {
             <label>Comedor</label>
             <select value={filters.comedor} onChange={set('comedor')}>
               <option value="">Todos</option>
-              {halls.map((h) => <option key={h} value={h}>{h}</option>)}
+              {[...new Set([...officialHalls, ...halls])].sort().map((h) => <option key={h} value={h}>{h}</option>)}
             </select>
           </div>
         </div>
